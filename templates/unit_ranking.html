@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>עריכת הגדרות עבור: <span class="text-primary">{{ unit }}</span></h2>
+        <a href="/" class="btn btn-outline-secondary">ביטול וחזרה</a>
+    </div>
+
+    <form method="post">
+        <div class="card p-4 shadow-sm border-warning mb-4">
+            <h5 class="text-warning mb-3">⚡ הגדרת עוצמת יחידה (Power)</h5>
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="text-muted mb-0">
+                        ערך גבוה מ-1.0 נותן ליחידה עדיפות ב"חטיפת" סטודנטים מול יחידות אחרות.<br>
+                        <strong>המלצה:</strong> ליחידות חובה/יוקרתיות תן 5.0 ומעלה. ליחידות רגילות השאר 1.0.
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text">עוצמה:</span>
+                        <input type="number" name="unit_power" step="0.1" min="0.1" 
+                               value="{{ current_power }}" class="form-control form-control-lg text-center">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">דירוג מועמדים</h5>
+                <small>הזן מספרים (1 הוא הכי גבוה). סטודנטים ללא מספר לא ידורגו.</small>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 70%;">שם הסטודנט</th>
+                            <th style="width: 30%;" class="text-center">עדיפות (1 = הכי גבוה)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td class="align-middle fw-bold">{{ student }}</td>
+                            <td>
+                                <input type="number" name="rank_{{ student }}" 
+                                       value="{{ current_ranks.get(student, '') }}" 
+                                       class="form-control text-center mx-auto" 
+                                       style="max-width: 100px;" min="1">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-5">
+            <button type="submit" class="btn btn-success btn-lg w-100 shadow">💾 שמור הכל וחזור לעמוד הבית</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

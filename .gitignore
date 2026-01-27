@@ -1,0 +1,51 @@
+# Python - קבצים זמניים של השפה
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# סביבה וירטואלית (Virtual Environment)
+venv/
+.venv/
+env/
+ENV/
+
+# Flask / התקנים מקומיים
+instance/
+.webassets-cache
+.env
+.flaskenv
+
+# PyCharm / VS Code / קבצי עורך
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# קבצי נתונים (אופציונלי)
+# אם אתה רוצה לשמור את db.json ב-Git לצורך טסטים, אל תוסיף אותו לכאן.
+# אם הנתונים רגישים או משתנים כל הזמן, כדאי להוסיף:
+# db.json
+
+# קבצי לוג
+*.log
+
+# קבצי מערכת הפעלה
+.DS_Store
+Thumbs.db

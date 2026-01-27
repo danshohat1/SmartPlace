@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm border-primary">
+            <h4 class="mb-3">📂 שלב א': טעינת נתונים</h4>
+            <p class="small text-muted">בחר את הקבצים מהמחשב כדי לאתחל את המערכת:</p>
+            
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">קובץ תשובות סטודנטים (CSV):</label>
+                    <input type="file" name="students_file" class="form-control" accept=".csv" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">קובץ פרופיל יחידות (CSV):</label>
+                    <input type="file" name="units_file" class="form-control" accept=".csv" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100">טען נתונים למערכת ⬆️</button>
+            </form>
+            
+            {% if student_count > 0 %}
+            <div class="alert alert-success mt-3 py-2">
+                ✅ במערכת קיימים נתונים של <strong>{{ student_count }}</strong> סטודנטים.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h4 class="mb-3">⭐ שלב ב': דירוג יחידות</h4>
+            <p class="small text-muted">לחץ על יחידה כדי להזין את דירוג הסטודנטים מהראיונות:</p>
+            
+            <div class="list-group">
+                {% for unit in units %}
+                <a href="/rank/{{ unit }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span>{{ unit }}</span>
+                    <span class="badge bg-outline-primary text-primary border">ערוך דירוג ✏️</span>
+                </a>
+                {% else %}
+                <div class="text-center p-4 text-muted border sorted">
+                    טרם נטענו יחידות. העלה קבצים מימין.
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if units %}
+            <hr>
+            <a href="/run" class="btn btn-danger btn-lg w-100 mt-2">🚀 הרץ שיבוץ סופי</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

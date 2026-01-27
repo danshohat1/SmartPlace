@@ -1,0 +1,576 @@
+{
+    "students": [
+        {
+            "name": "Noam Elimelech",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "9900",
+                "Mazov",
+                "LA",
+                "Rapat",
+                "Hatal"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Noam Vaknin",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Rapat",
+                "Hatal",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Adir Hy Havsov",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "9900",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Hatal",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Avraham Super Rif",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Rapat",
+                "Hatal"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Yahav Peleg",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Rapat",
+                "Hatal",
+                "9900",
+                "Lotam",
+                "Mazov",
+                "LA"
+            ],
+            "voice": 0.25
+        },
+        {
+            "name": "Yshy Biton",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Hatal",
+                "Mazov",
+                "LA",
+                "9900",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Shy Or Osov Pink",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "9900",
+                "Hatal",
+                "Rapat",
+                "Lotam",
+                "Mazov",
+                "LA"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Idan Ostryber",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Hatal",
+                "Lotam",
+                "Mazov",
+                "LA",
+                "9900",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Bary Babai",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Hatal",
+                "Mazov",
+                "LA",
+                "9900",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Sanker Avior",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Hatal",
+                "Rapat",
+                "9900",
+                "Mazov",
+                "LA"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Baha Nasraladin",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Mazov",
+                "LA",
+                "9900",
+                "Hatal",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Yarin Apnazer",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Rapat",
+                "Lotam",
+                "Hatal",
+                "Mazov",
+                "LA",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Tomer Goichmen",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Mazov",
+                "LA",
+                "Hatal",
+                "Rapat",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Aviv Cohen",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Hatal",
+                "Lotam",
+                "Mazov",
+                "LA",
+                "Rapat",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Max Barshy",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Hatal",
+                "9900",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Omer Portuges",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Mazov",
+                "LA",
+                "9900",
+                "Lotam",
+                "Hatal",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Ori Haim Ohayon",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Mazov",
+                "LA",
+                "9900",
+                "Hatal",
+                "Rapat"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Ilan Ahmadov",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Rapat",
+                "Hatal",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Ronen Bokobza",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "9900",
+                "Mazov",
+                "LA",
+                "Rapat",
+                "Hatal"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Nehorai Eliyahu Nachom",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Hatal",
+                "Mazov",
+                "LA",
+                "Rapat",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Ami Eliyahu",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Rapat",
+                "9900",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Hatal"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Asa Rostom",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "9900",
+                "Mazov",
+                "LA",
+                "Hatal",
+                "Lotam",
+                "Rapat"
+            ],
+            "voice": 0.25
+        },
+        {
+            "name": "Zohar Danino",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Lotam",
+                "Mazov",
+                "LA",
+                "Rapat",
+                "Hatal",
+                "9900"
+            ],
+            "voice": 1.0
+        },
+        {
+            "name": "Lior Yossef Bar Lev",
+            "prefs": [
+                "1044",
+                "1079",
+                "1014",
+                "Mazov",
+                "LA",
+                "Lotam",
+                "Rapat",
+                "Hatal",
+                "9900"
+            ],
+            "voice": 1.0
+        }
+    ],
+    "units": {
+        "9900": {
+            "capacity": 2,
+            "prefs": [
+                [
+                    "Noam Elimelech"
+                ],
+                [
+                    "Noam Vaknin"
+                ],
+                [
+                    "Adir Hy Havsov"
+                ],
+                [
+                    "Avraham Super Rif"
+                ],
+                [
+                    "Yahav Peleg"
+                ],
+                [
+                    "Yshy Biton"
+                ],
+                [
+                    "Shy Or Osov Pink"
+                ],
+                [
+                    "Idan Ostryber"
+                ]
+            ],
+            "power": 6.0
+        },
+        "Lotam": {
+            "capacity": 4,
+            "prefs": [
+                [
+                    "Bary Babai",
+                    "Sanker Avior",
+                    "Baha Nasraladin",
+                    "Noam Elimelech",
+                    "Yarin Apnazer",
+                    "Tomer Goichmen"
+                ],
+                [
+                    "Aviv Cohen",
+                    "Avraham Super Rif",
+                    "Max Barshy",
+                    "Omer Portuges",
+                    "Ori Haim Ohayon",
+                    "Shy Or Osov Pink",
+                    "Noam Vaknin",
+                    "Ilan Ahmadov"
+                ]
+            ],
+            "power": 3.0
+        },
+        "LA": {
+            "capacity": 2,
+            "prefs": [
+                [
+                    "Adir Hy Havsov",
+                    "Aviv Cohen",
+                    "Yahav Peleg",
+                    "Noam Vaknin",
+                    "Noam Elimelech",
+                    "Shy Or Osov Pink"
+                ],
+                [
+                    "Tomer Goichmen",
+                    "Ilan Ahmadov",
+                    "Sanker Avior",
+                    "Yarin Apnazer"
+                ],
+                [
+                    "Bary Babai",
+                    "Idan Ostryber",
+                    "Ronen Bokobza"
+                ]
+            ],
+            "power": 6.0
+        },
+        "Mazov": {
+            "capacity": 2,
+            "prefs": [
+                [
+                    "Ilan Ahmadov"
+                ],
+                [
+                    "Max Barshy"
+                ]
+            ],
+            "power": 6.0
+        },
+        "Hatal": {
+            "capacity": 5,
+            "prefs": [
+                [
+                    "Aviv Cohen"
+                ],
+                [
+                    "Idan Ostryber",
+                    "Noam Elimelech"
+                ],
+                [
+                    "Baha Nasraladin",
+                    "Max Barshy",
+                    "Noam Vaknin"
+                ],
+                [
+                    "Bary Babai",
+                    "Tomer Goichmen",
+                    "Avraham Super Rif"
+                ],
+                [
+                    "Nehorai Eliyahu Nachom",
+                    "Ilan Ahmadov",
+                    "Shy Or Osov Pink",
+                    "Sanker Avior"
+                ],
+                [
+                    "Ami Eliyahu",
+                    "Ronen Bokobza",
+                    "Yshy Biton",
+                    "Adir Hy Havsov",
+                    "Asa Rostom",
+                    "Zohar Danino",
+                    "Lior Yossef Bar Lev"
+                ],
+                [
+                    "Yarin Apnazer",
+                    "Yahav Peleg"
+                ],
+                [
+                    "Ori Haim Ohayon",
+                    "Omer Portuges"
+                ]
+            ],
+            "power": 0.75
+        },
+        "Rapat": {
+            "capacity": 4,
+            "prefs": [
+                [
+                    "Idan Ostryber"
+                ],
+                [
+                    "Avraham Super Rif"
+                ],
+                [
+                    "Yarin Apnazer"
+                ],
+                [
+                    "Aviv Cohen"
+                ],
+                [
+                    "Noam Vaknin"
+                ],
+                [
+                    "Noam Elimelech"
+                ],
+                [
+                    "Ori Haim Ohayon"
+                ],
+                [
+                    "Tomer Goichmen"
+                ],
+                [
+                    "Yshy Biton"
+                ]
+            ],
+            "power": 15.0
+        },
+        "1044": {
+            "capacity": 1,
+            "prefs": [
+                [
+                    "Idan Ostryber"
+                ]
+            ],
+            "power": 40.0
+        },
+        "1079": {
+            "capacity": 2,
+            "prefs": [
+                [
+                    "Noam Elimelech",
+                    "Tomer Goichmen",
+                    "Aviv Cohen"
+                ]
+            ],
+            "power": 40.0
+        },
+        "1014": {
+            "capacity": 2,
+            "prefs": [
+                [
+                    "Yshy Biton"
+                ],
+                [
+                    "Yarin Apnazer"
+                ],
+                [
+                    "Aviv Cohen"
+                ],
+                [
+                    "Noam Elimelech"
+                ],
+                [
+                    "Idan Ostryber"
+                ]
+            ],
+            "power": 40.0
+        }
+    }
+}

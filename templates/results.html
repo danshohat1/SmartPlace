@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary">📊 לוח בקרה ושיבוצים</h2>
+            <span class="text-muted">{{ message }}</span>
+        </div>
+        <div>
+            <a href="/download_excel" class="btn btn-success me-2">
+                <i class="bi bi-file-earmark-excel"></i> הורד אקסל
+            </a>
+            <a href="/" class="btn btn-outline-secondary">חזור להגדרות</a>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-bold">תפוסה מול מכסה (Capacity vs Assigned)</div>
+                <div class="card-body">
+                    <canvas id="capacityChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-bold">סטטוס כללי</div>
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h1 class="display-4 fw-bold text-success">{{ matches|length - unmatched|length }}</h1>
+                    <p class="text-muted">שובצו בהצלחה</p>
+                    <hr class="w-50">
+                    <h3 class="fw-bold text-danger">{{ unmatched|length }}</h3>
+                    <p class="text-muted">ללא שיבוץ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3 border-bottom pb-2">📂 פירוט לפי יחידות</h4>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        
+        {% for unit_name, students in units_grouped.items() %}
+        {% set capacity = units_data[unit_name].capacity %}
+        {% set fill_rate = (students|length / capacity * 100)|round|int %}
+        
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header d-flex justify-content-between align-items-center 
+                    {{ 'bg-success text-white' if students|length == capacity else 'bg-light' }}">
+                    <h5 class="mb-0">{{ unit_name }}</h5>
+                    <span class="badge {{ 'bg-white text-success' if students|length == capacity else 'bg-secondary' }}">
+                        {{ students|length }} / {{ capacity }}
+                    </span>
+                </div>
+                
+                <div class="progress" style="height: 5px;">
+                    <div class="progress-bar {{ 'bg-danger' if students|length > capacity else 'bg-success' }}" 
+                         role="progressbar" style="width: {{ fill_rate }}%"></div>
+                </div>
+
+                <div class="card-body">
+                    {% if students %}
+                    <ul class="list-group list-group-flush">
+                        {% for student in students %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">{{ student }}</div>
+                                <small class="text-muted" style="font-size: 0.8em;">
+                                    {{ reasons.get(student, "") }}
+                                </small>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted text-center mt-3">אין משובצים ביחידה זו</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white text-muted small">
+                    Power: {{ units_data[unit_name].power }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if unmatched %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">⚠️ לא שובצו</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for student in unmatched %}
+                        <li class="list-group-item px-0 text-danger">
+                            <strong>{{ student }}</strong>
+                            <br>
+                            <small class="text-muted">{{ reasons.get(student, "") }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('capacityChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ stats.labels | tojson }},
+            datasets: [
+                {
+                    label: 'שובצו בפועל',
+                    data: {{ stats.assigned | tojson }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'מכסה (Capacity)',
+                    data: {{ stats.capacity | tojson }},
+                    backgroundColor: 'rgba(201, 203, 207, 0.3)',
+                    borderColor: 'rgba(201, 203, 207, 1)',
+                    borderWidth: 1,
+                    type: 'line', // מראה את הגבול כקו
+                    pointStyle: 'line' 
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+</script>
+{% endblock %}
