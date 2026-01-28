@@ -1,0 +1,536 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>📊 Dashboard כיתה: {{ class_name }}</h2>
+        </div>
+        <div class="col-md-4">
+            <div class="btn-group w-100" role="group">
+                <a href="/load_class/{{ class_name }}" class="btn btn-warning">⚡ הרצה רגילה</a>
+                <a href="/run_class_optimized/{{ class_name }}" class="btn btn-danger">🚀 אופטימיזציה</a>
+                <a href="/classes" class="btn btn-outline-secondary">↩️ חזור</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- פרטי הכיתה -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <strong>📋 פרטי הכיתה:</strong> 
+                סטודנטים: {{ student_count }} | 
+                יחידות: {{ unit_count }} | 
+                נוצרה: {{ class_data.created_date }}
+            </div>
+        </div>
+    </div>
+
+    <!-- חיפוש סטודנט -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-info mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🔍 חפש סטודנט</h5>
+                    <div class="mb-3">
+                        <input type="text" id="studentSearch" class="form-control form-control-lg" placeholder="הקלד שם סטודנט..." onkeyup="searchStudent()">
+                    </div>
+                    
+                    <!-- תוצאות חיפוש -->
+                    <div id="searchResults" style="display: none;">
+                        <hr>
+                        <h6>👤 <span id="studentName"></span></h6>
+                        <p class="text-muted small">סדר העדפות היחידות:</p>
+                        <ol id="prefsList" class="list-group">
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- עריכת יחידות - ביצוג קומפקטי -->
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="mb-3">🏢 יחידות וקונפיגורציה</h4>
+            <div class="row" id="unitsContainer">
+                <!-- יחידות יתוספו כאן באמצעות JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal לעריכת דירוגים -->
+<div class="modal fade" id="editPrefsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">✏️ עריכת דירוגים - <span id="modalUnitName"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- חיפוש וחנות סטודנטים -->
+                    <div class="col-md-4">
+                        <div class="sticky-top" style="top: 0; z-index: 100;">
+                            <h6 class="mb-2">🔍 סטודנטים זמינים</h6>
+                            <input type="text" id="studentSearchInModal" class="form-control form-control-sm mb-2" 
+                                   placeholder="חפש סטודנט...">
+                            
+                            <div id="studentsPool" class="border rounded p-2" style="min-height: 400px; max-height: 500px; overflow-y: auto; background-color: #f8f9fa;">
+                                <!-- סטודנטים יופיעו כאן -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- רמות דירוג -->
+                    <div class="col-md-8">
+                        <h6 class="mb-3">📊 רמות דירוג</h6>
+                        <div id="prefsContainer" class="space-y-3">
+                            <!-- רמות יופיעו כאן -->
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary w-100 mt-3" onclick="addNewTierModal()">
+                            ➕ הוסף רמת דירוג חדשה
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                <button type="button" class="btn btn-primary" onclick="savePrefsModal()">💾 שמור שינויים</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal לעריכת פרטי יחידה -->
+<div class="modal fade" id="editUnitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">⚙️ הגדרות - <span id="modalUnitName2"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">קיבולת:</label>
+                    <input type="number" id="modalCapacity" class="form-control" placeholder="הכנס קיבולת">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">כוח יחידה (Power):</label>
+                    <input type="number" id="modalPower" step="0.01" class="form-control" placeholder="הכנס כוח">
+                </div>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="modalStickyPower">
+                        <label class="form-check-label fw-bold" for="modalStickyPower">
+                            🔒 כוח חזק (ברזל) - שמור Power בעת אופטימיזציה
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-2">אם מסומן, ערך הכוח של היחידה הזו לא ישתנה בעת הרצת אופטימיזציה מלאה</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                <button type="button" class="btn btn-primary" onclick="saveUnitSettingsModal()">💾 שמור</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+// נתונים של הסטודנטים והיחידות
+const studentsData = {{ class_data.students | tojson }};
+const unitsData = {{ class_data.units | tojson }};
+const className = {{ class_name | tojson }};
+
+// משתנים גלובליים ל-modals
+let currentEditingUnit = null;
+let editingPrefs = null;
+let filteredStudents = [];
+
+// ביטחון תחד טעינה
+document.addEventListener('DOMContentLoaded', function() {
+    renderUnits();
+});
+
+function renderUnits() {
+    const container = document.getElementById('unitsContainer');
+    container.innerHTML = '';
+    
+    Object.entries(unitsData).forEach(([unitName, unitData]) => {
+        const card = document.createElement('div');
+        card.className = 'col-md-4 mb-3';
+        
+        // Escape unit name for use in JavaScript
+        const escapedUnitName = unitName.replace(/"/g, '&quot;');
+        const displayName = unitName.replace(/"/g, '״');
+        
+        card.innerHTML = `
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title mb-3">📍 ${displayName} ${unitData.sticky_power ? '🔒' : ''}</h6>
+                    
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">קיבולת:</small>
+                        <strong class="fs-6">${unitData.capacity} מקומות</strong>
+                    </div>
+                    
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">כוח:</small>
+                        <div>
+                            <strong class="fs-6">${unitData.power.toFixed(2)}</strong>
+                            ${unitData.sticky_power ? '<span class="badge bg-warning text-dark ms-2">ברזל</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-2">📊 דירוגים:</small>
+                        <div class="d-flex flex-wrap gap-1">
+                            ${unitData.prefs.map((tier, idx) => {
+                                const count = Array.isArray(tier) ? tier.length : 1;
+                                return `<span class="badge bg-light text-dark border">רמה ${idx + 1}: ${count} ס'</span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto d-grid gap-2">
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditPrefsModal('${escapedUnitName}')">
+                            ✏️ ערוך דירוגים
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="openEditSettingsModal('${escapedUnitName}')">
+                            ⚙️ הגדרות
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+
+function openEditSettingsModal(unitName) {
+    currentEditingUnit = unitName;
+    const unitData = unitsData[unitName];
+    
+    document.getElementById('modalUnitName2').textContent = unitName;
+    document.getElementById('modalCapacity').value = unitData.capacity;
+    document.getElementById('modalPower').value = unitData.power.toFixed(2);
+    document.getElementById('modalStickyPower').checked = unitData.sticky_power || false;
+    
+    const modal = new bootstrap.Modal(document.getElementById('editUnitModal'));
+    modal.show();
+}
+
+function saveUnitSettingsModal() {
+    const capacity = parseInt(document.getElementById('modalCapacity').value);
+    const power = parseFloat(document.getElementById('modalPower').value);
+    const stickyPower = document.getElementById('modalStickyPower').checked;
+    
+    if (!currentEditingUnit) return;
+    
+    unitsData[currentEditingUnit].capacity = capacity;
+    unitsData[currentEditingUnit].power = power;
+    unitsData[currentEditingUnit].sticky_power = stickyPower;
+    
+    saveAllChanges();
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editUnitModal'));
+    modal.hide();
+    
+    renderUnits();
+}
+
+function openEditPrefsModal(unitName) {
+    currentEditingUnit = unitName;
+    editingPrefs = JSON.parse(JSON.stringify(unitsData[unitName].prefs)); // deep copy
+    
+    document.getElementById('modalUnitName').textContent = unitName;
+    
+    // ניקוי חיפוש
+    document.getElementById('studentSearchInModal').value = '';
+    
+    renderStudentsPool();
+    renderPrefsInModal();
+    
+    const modal = new bootstrap.Modal(document.getElementById('editPrefsModal'));
+    modal.show();
+}
+
+function renderStudentsPool() {
+    const searchInput = document.getElementById('studentSearchInModal').value.toLowerCase();
+    const container = document.getElementById('studentsPool');
+    container.innerHTML = '';
+    
+    // חיפוש סטודנטים לפי טקסט
+    filteredStudents = studentsData.filter(student => 
+        student.name.toLowerCase().includes(searchInput)
+    );
+    
+    if (filteredStudents.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center mt-5">אין סטודנטים לתצוגה</p>';
+        return;
+    }
+    
+    filteredStudents.forEach(student => {
+        const badge = document.createElement('div');
+        badge.className = 'btn btn-sm btn-outline-primary m-1';
+        badge.draggable = true;
+        badge.textContent = student.name;
+        badge.style.cursor = 'grab';
+        
+        badge.addEventListener('dragstart', (e) => {
+            e.dataTransfer.effectAllowed = 'copy';
+            e.dataTransfer.setData('studentName', student.name);
+        });
+        
+        badge.addEventListener('dragend', (e) => {
+            badge.style.opacity = '1';
+        });
+        
+        container.appendChild(badge);
+    });
+}
+
+function renderPrefsInModal() {
+    const container = document.getElementById('prefsContainer');
+    container.innerHTML = '';
+    
+    editingPrefs.forEach((tier, tierIndex) => {
+        const tierDiv = document.createElement('div');
+        tierDiv.className = 'mb-3 p-3 bg-light rounded border-2 border-secondary';
+        tierDiv.id = `tier-${tierIndex}`;
+        
+        const students = Array.isArray(tier) ? tier : [tier];
+        
+        tierDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <label class="form-label mb-0 fw-bold">🎯 רמה ${tierIndex + 1}</label>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTierModal(${tierIndex})">
+                    🗑️ מחק רמה
+                </button>
+            </div>
+            <div class="tier-drop-zone" data-tier="${tierIndex}" style="min-height: 50px; background-color: white; border: 2px dashed #ccc; border-radius: 4px; padding: 10px;">
+                <!-- סטודנטים בגרירה יופיעו כאן -->
+            </div>
+        `;
+        
+        const dropZone = tierDiv.querySelector('.tier-drop-zone');
+        
+        // הוסף את הסטודנטים שכבר ברמה
+        students.forEach((studentName, studentIndex) => {
+            const studentBadge = document.createElement('span');
+            studentBadge.className = 'badge bg-success me-2 mb-2';
+            studentBadge.style.cursor = 'pointer';
+            studentBadge.dataset.tierIndex = tierIndex;
+            studentBadge.dataset.studentIndex = studentIndex;
+            studentBadge.dataset.studentName = studentName;
+            studentBadge.innerHTML = `${studentName} <span class="ms-1" style="cursor: pointer;">✕</span>`;
+            
+            // הוסף event listener להסרה
+            studentBadge.querySelector('span').addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeStudentFromTier(tierIndex, studentName);
+            });
+            
+            dropZone.appendChild(studentBadge);
+        });
+        
+        // הוסף event listeners לdrop zone
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#e7f3ff';
+        });
+        
+        dropZone.addEventListener('dragleave', (e) => {
+            dropZone.style.backgroundColor = 'white';
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = 'white';
+            
+            const studentName = e.dataTransfer.getData('studentName');
+            addStudentToTier(tierIndex, studentName);
+            saveAllChanges();
+            renderPrefsInModal();
+            renderStudentsPool();
+        });
+        
+        container.appendChild(tierDiv);
+    });
+}
+
+function addStudentToTier(tierIndex, studentName) {
+    if (!editingPrefs[tierIndex]) return;
+    
+    const tier = editingPrefs[tierIndex];
+    const tierArray = Array.isArray(tier) ? tier : [tier];
+    
+    // בדיקה אם הסטודנט כבר ברמה
+    if (tierArray.includes(studentName)) return;
+    
+    tierArray.push(studentName);
+    editingPrefs[tierIndex] = tierArray;
+}
+
+function removeStudentFromTier(tierIndex, studentName) {
+    if (!editingPrefs[tierIndex]) return;
+    
+    const tier = editingPrefs[tierIndex];
+    let tierArray = Array.isArray(tier) ? tier : [tier];
+    
+    tierArray = tierArray.filter(s => s !== studentName);
+    editingPrefs[tierIndex] = tierArray.length === 0 ? '' : tierArray.length === 1 ? tierArray[0] : tierArray;
+    
+    saveAllChanges();
+    // עדכן את התצוגה
+    renderPrefsInModal();
+    renderStudentsPool();
+}
+
+function removeTierModal(tierIndex) {
+    if (confirm('האם בטוח שברצונך למחוק את הרמה הזו?')) {
+        editingPrefs.splice(tierIndex, 1);
+        saveAllChanges();
+        renderPrefsInModal();
+    }
+}
+
+function addNewTierModal() {
+    editingPrefs.push([]);
+    saveAllChanges();
+    renderPrefsInModal();
+}
+
+function savePrefsModal() {
+    if (!currentEditingUnit) return;
+    
+    const newPrefs = [];
+    document.querySelectorAll('.tier-drop-zone').forEach(zone => {
+        const badges = zone.querySelectorAll('span.badge');
+        const students = Array.from(badges).map(badge => {
+            // קבל את הטקסט בלי החלק של ה-✕
+            return badge.textContent.trim().replace('✕', '').trim();
+        }).filter(s => s);
+        
+        if (students.length > 0) {
+            newPrefs.push(students.length === 1 ? students[0] : students);
+        }
+    });
+    
+    unitsData[currentEditingUnit].prefs = newPrefs;
+    
+    saveAllChanges();
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editPrefsModal'));
+    modal.hide();
+    
+    renderUnits();
+}
+
+function saveAllChanges() {
+    console.log('Saving changes for class:', className);
+    console.log('Units data:', JSON.stringify(unitsData, null, 2));
+    
+    fetch(`/update_class`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            class_name: className,
+            units: unitsData
+        })
+    })
+    .then(r => {
+        console.log('Response status:', r.status);
+        return r.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            showSuccessAlert('כל השינויים נשמרו בהצלחה');
+        } else {
+            showErrorAlert('שגיאה: ' + (data.error || 'לא ידוע'));
+        }
+    })
+    .catch(err => {
+        console.error('Fetch error:', err);
+        showErrorAlert('שגיאה בשמירת השינויים');
+    });
+}
+
+function showSuccessAlert(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+function showErrorAlert(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 4000);
+}
+
+// Setup search listener
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('studentSearchInModal');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', () => {
+            renderStudentsPool();
+        });
+    }
+});
+
+function searchStudent() {
+    const query = document.getElementById('studentSearch').value.toLowerCase();
+    
+    if (!query) {
+        document.getElementById('searchResults').style.display = 'none';
+        return;
+    }
+    
+    // חיפוש סטודנט
+    const student = studentsData.find(s => s.name.toLowerCase().includes(query));
+    
+    if (!student) {
+        document.getElementById('searchResults').style.display = 'none';
+        return;
+    }
+    
+    // הצגת התוצאות
+    document.getElementById('studentName').textContent = student.name;
+    
+    const prefsList = document.getElementById('prefsList');
+    prefsList.innerHTML = '';
+    
+    const prefs = student.prefs || [];
+    prefs.forEach((unit, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+            <span>${unit}</span>
+            <span class="badge bg-primary rounded-pill">${index + 1}</span>
+        `;
+        prefsList.appendChild(li);
+    });
+    
+    document.getElementById('searchResults').style.display = 'block';
+}
+</script>
+
+{% endblock %}

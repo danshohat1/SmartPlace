@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>📚 הכיתות שלי</h2>
+            <p class="text-muted">שמור קבוצות של סטודנטים ויחידות וצור חישובים מהר יותר</p>
+        </div>
+    </div>
+
+    <!-- יצירת כיתה חדשה -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <h5 class="card-title">➕ יצירת כיתה חדשה</h5>
+                    <form action="/save_class" method="post" class="mt-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">שם הכיתה:</label>
+                                    <input type="text" name="class_name" class="form-control" placeholder="לדוגמה: כיתה א' 2026" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">תיאור (אופציונלי):</label>
+                                    <input type="text" name="class_description" class="form-control" placeholder="תיאור קצר">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">💾 שמור כיתה חדשה</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- רשימת כיתות שמורות -->
+    {% if classes %}
+    <div class="row">
+        <div class="col-md-12">
+            <h4>📋 הכיתות השמורות שלך:</h4>
+        </div>
+    </div>
+
+    {% for class_name, class_data in classes.items() %}
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title">
+                                📚 {{ class_name }}
+                            </h5>
+                            {% if class_data.description %}
+                            <p class="card-text text-muted small">{{ class_data.description }}</p>
+                            {% endif %}
+                            <p class="card-text small">
+                                <strong>סטודנטים:</strong> {{ class_data.students|length }} |
+                                <strong>יחידות:</strong> {{ class_data.units|length }} |
+                                <strong>נשמרה:</strong> {{ class_data.created_date }}
+                            </p>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <a href="/load_class/{{ class_name }}" class="btn btn-primary btn-sm">⚡ הרץ כיתה זו</a>
+                            <a href="/edit_class/{{ class_name }}" class="btn btn-warning btn-sm">✏️ ערוך</a>
+                            <form action="/delete_class/{{ class_name }}" method="post" style="display:inline;" onsubmit="return confirm('האם אתה בטוח?')">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ מחק</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <strong>אין כיתות שמורות עדיין.</strong> צור כיתה חדשה כדי להתחיל!
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <a href="/" class="btn btn-outline-secondary">🏠 חזור לעמוד הבית</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

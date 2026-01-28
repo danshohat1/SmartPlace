@@ -1,73 +1,364 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="card p-4 shadow-sm border-primary">
-            <h4 class="mb-3">📂 שלב א': טעינת נתונים</h4>
-            <p class="small text-muted">בחר את הקבצים מהמחשב כדי לאתחל את המערכת:</p>
+<!-- כיתה מהירה - העלאה וריצה בלי שמירה -->
+<div class="row mb-5">
+    <div class="col-md-12">
+        <div class="card p-4 shadow-lg border-success border-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0">⚡ ריצה מהירה - העלה קבצים ובחר מה לעשות</h3>
+                <span class="badge bg-success">חדש</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="text-muted mb-0">העלה קבצי סטודנטים ויחידות, ואז בחר: להריץ שיבוץ או לשמור כיתה חדשה.</p>
+                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#fileFormatModal">
+                    📋 צפייה בפורמט קבצים
+                </button>
+            </div>
             
-            <form action="/upload" method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">קובץ תשובות סטודנטים (CSV):</label>
-                    <input type="file" name="students_file" class="form-control" accept=".csv" required>
+            <form id="quickRunForm" enctype="multipart/form-data">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold mb-2">📄 קובץ סטודנטים (Excel או CSV):</label>
+                        <input type="file" name="quick_students" class="form-control form-control-lg" accept=".csv,.xlsx,.xls" id="quickStudents" required>
+                        <small class="text-muted d-block mt-2">תשובות סטודנטים או Microsoft Forms</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold mb-2">📊 קובץ יחידות (Excel או CSV):</label>
+                        <input type="file" name="quick_units" class="form-control form-control-lg" accept=".csv,.xlsx,.xls" id="quickUnits" required>
+                        <small class="text-muted d-block mt-2">פרטי יחידות וקיבולות</small>
+                    </div>
                 </div>
                 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">קובץ פרופיל יחידות (CSV):</label>
-                    <input type="file" name="units_file" class="form-control" accept=".csv" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary w-100">טען נתונים למערכת ⬆️</button>
+                <button type="button" class="btn btn-warning btn-lg w-100" onclick="uploadAndShowOptions()">
+                    📤 העלה קבצים ובחר אפשרות
+                </button>
             </form>
             
-            {% if student_count > 0 %}
-            <div class="alert alert-success mt-3 py-2">
-                ✅ במערכת קיימים נתונים של <strong>{{ student_count }}</strong> סטודנטים.
+            <div id="quickRunMessage" style="display: none;" class="mt-4">
+                <!-- הודעות יופיעו כאן -->
             </div>
-            {% endif %}
-        </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="card p-4 shadow-sm">
-            <h4 class="mb-3">⭐ שלב ב': דירוג יחידות</h4>
-            <p class="small text-muted">לחץ על יחידה כדי להזין את דירוג הסטודנטים מהראיונות:</p>
-            
-            <div class="list-group">
-                {% for unit in units %}
-                <a href="/rank/{{ unit }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <span>{{ unit }}</span>
-                    <span class="badge bg-outline-primary text-primary border">ערוך דירוג ✏️</span>
-                </a>
-                {% else %}
-                <div class="text-center p-4 text-muted border sorted">
-                    טרם נטענו יחידות. העלה קבצים מימין.
-                </div>
-                {% endfor %}
-            </div>
-            
-            {% if units %}
-            <hr>
-            <h5 class="mb-3 mt-4">🎯 שלב ג': הרצת שיבוץ</h5>
-            
-            <div class="d-grid gap-2">
-                <a href="/run" class="btn btn-warning btn-lg">
-                    ⚡ ריצה רגילה
-                    <br><small class="d-block" style="font-size: 0.75em;">מוצא רק Gamma אופטימלי, משתמש ב-Power שהזנת</small>
-                </a>
-                
-                <a href="/run_full_optimization" class="btn btn-danger btn-lg">
-                    🚀 אופטימיזציה מלאה
-                    <br><small class="d-block" style="font-size: 0.75em;">מוצא גם Gamma וגם Power אופטימליים (שומר יחידות עם כוח ברזל)</small>
-                </a>
-            </div>
-            
-            <div class="alert alert-info mt-3 small">
-                💡 <strong>טיפ:</strong> השתמש ב"אופטימיזציה מלאה" כדי למצוא את הערכים הטובים ביותר שמשבצים את מקסימום הסטודנטים. 
-                יחידות עם "כוח ברזל" ישמרו את הערכים שלהן.
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Modal לבחירת אפשרות אחרי העלאה -->
+<div class="modal fade" id="quickOptionsModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">✅ הקבצים הועלו בהצלחה! מה לעשות?</h5>
+            </div>
+            <div class="modal-body">
+                <p class="mb-4 text-center fw-bold">בחר אפשרות:</p>
+                
+                <div class="d-grid gap-3">
+                    <button type="button" class="btn btn-warning btn-lg" onclick="quickRun()">
+                        <div class="fw-bold">⚡ הרץ שיבוץ</div>
+                        <small>ריצה מהירה עם דירוג אחיד בכל היחידות</small>
+                    </button>
+                    
+                    <button type="button" class="btn btn-info btn-lg" onclick="saveClassModal()">
+                        <div class="fw-bold">💾 שמור כיתה חדשה</div>
+                        <small>שמור כיתה כדי להמשיך לערוך אחרי כך</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal לשמירת כיתה -->
+<div class="modal fade" id="saveNewClassModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">💾 שם הכיתה</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="newClassName" class="form-control form-control-lg" 
+                       placeholder="הזן שם כיתה" required autofocus>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">בטל</button>
+                <button type="button" class="btn btn-info" onclick="doSaveClass()">שמור</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal להצגת פורמט קבצים -->
+<div class="modal fade" id="fileFormatModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">📋 פורמט קבצים לדוגמה</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Students File Format -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">📄 קובץ סטודנטים</h6>
+                    <p class="small text-muted mb-2">יכול להיות דירוגים מ-Microsoft Forms או Excel רגיל:</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>שם</th>
+                                    <th>שאלה 1</th>
+                                    <th>שאלה 2</th>
+                                    <th>שאלה 3</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>דן כהן</td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>ירון לוי</td>
+                                    <td>2</td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td>טל בן דור</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                    <td>3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-light small mb-0">
+                        <strong>הערות:</strong>
+                        <ul class="mb-0 ps-4">
+                            <li>הערכים יכולים להיות 1, 2, 3 וכו' (כמו דירוג)</li>
+                            <li>העמודה הראשונה חייבת להיות "שם" של הסטודנט</li>
+                            <li>גם קבצי Microsoft Forms עובדים - המערכת תחלץ את הדירוגים</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Units File Format -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">📊 קובץ יחידות</h6>
+                    <p class="small text-muted mb-2">דירוגי היחידות על כל השאלות:</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>UnitName</th>
+                                    <th>Capacity</th>
+                                    <th>Q1</th>
+                                    <th>Q2</th>
+                                    <th>Q3</th>
+                                    <th>Q4</th>
+                                    <th>...</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>8200</td>
+                                    <td>10</td>
+                                    <td>1</td>
+                                    <td>4</td>
+                                    <td>5</td>
+                                    <td>1</td>
+                                    <td>...</td>
+                                </tr>
+                                <tr>
+                                    <td>מטכ״ל</td>
+                                    <td>2</td>
+                                    <td>5</td>
+                                    <td>5</td>
+                                    <td>5</td>
+                                    <td>5</td>
+                                    <td>...</td>
+                                </tr>
+                                <tr>
+                                    <td>יחידת תוכנה</td>
+                                    <td>15</td>
+                                    <td>1</td>
+                                    <td>5</td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-light small mb-0">
+                        <strong>הערות:</strong>
+                        <ul class="mb-0 ps-4">
+                            <li>קולון ראשון: <code>UnitName</code> - שם היחידה</li>
+                            <li>קולון שני: <code>Capacity</code> - מספר המקומות ביחידה</li>
+                            <li>עמודות Q1, Q2, Q3... - דירוגי היחידה על כל שאלה (1-5)</li>
+                            <li>צריכים להיות בדיוק אותו מספר שאלות כמו בקובץ הסטודנטים</li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light d-flex gap-2">
+                <a href="/download_students_sample" class="btn btn-sm btn-outline-primary">
+                    💾 הורד דוגמה - סטודנטים
+                </a>
+                <a href="/download_units_sample" class="btn btn-sm btn-outline-success">
+                    💾 הורד דוגמה - יחידות
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">סגור</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                ✅ <span id="toastMessage">הכיתה נשמרה בהצלחה!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+{% if classes %}
+<div class="row mt-5">
+    <!-- כיתות שמורות -->
+    <div class="col-md-12">
+        <div class="card p-4 shadow-sm border-success">
+            <h4 class="mb-3">📚 הכיתות השמורות שלך</h4>
+            <p class="small text-muted">בחר כיתה כדי להציג, להעלות קבצים, לערוך ולהריץ אופטימיזציה:</p>
+            
+            <div class="list-group">
+                {% for class_name, class_data in classes.items() %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ class_name }}</h6>
+                            <small class="text-muted">
+                                סטודנטים: {{ class_data.students|length }} | 
+                                יחידות: {{ class_data.units|length }}
+                            </small>
+                        </div>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="/edit_class/{{ class_name }}" class="btn btn-outline-info" title="ערוך כיתה">📊</a>
+                            <a href="/load_class/{{ class_name }}" class="btn btn-outline-warning" title="הרצה רגילה">⚡</a>
+                            <a href="/run_class_optimized/{{ class_name }}" class="btn btn-outline-danger" title="אופטימיזציה">🚀</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function uploadAndShowOptions() {
+    const studentsFile = document.getElementById('quickStudents').files[0];
+    const unitsFile = document.getElementById('quickUnits').files[0];
+    
+    if (!studentsFile || !unitsFile) {
+        showMessage('error', 'בחר שני קבצים כדי להריץ שיבוץ');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('students_file', studentsFile);
+    formData.append('units_file', unitsFile);
+    
+    showMessage('info', 'טוען קבצים...');
+    
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.text())
+    .then(html => {
+        hideMessage();
+        // הצג modal עם אפשרויות
+        const modal = new bootstrap.Modal(document.getElementById('quickOptionsModal'));
+        modal.show();
+    })
+    .catch(err => {
+        showMessage('error', 'שגיאה בטעינת הקבצים: ' + err);
+    });
+}
+
+function quickRun() {
+    // הרץ עם דירוג אחיד אוטומטי
+    window.location.href = '/run_unified';
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('quickOptionsModal'));
+    modal.hide();
+}
+
+function saveClassModal() {
+    // הצג modal לשמירת כיתה
+    const modal1 = bootstrap.Modal.getInstance(document.getElementById('quickOptionsModal'));
+    modal1.hide();
+    
+    const modal2 = new bootstrap.Modal(document.getElementById('saveNewClassModal'));
+    modal2.show();
+}
+
+function doSaveClass() {
+    const className = document.getElementById('newClassName').value.trim();
+    
+    if (!className) {
+        showMessage('error', 'בחר שם לכיתה');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('class_name', className);
+    formData.append('class_description', '');
+    
+    fetch('/save_class', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.text())
+    .then(html => {
+        // ניקוי הטופס
+        document.getElementById('newClassName').value = '';
+        
+        // סגור את ה-modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('saveNewClassModal'));
+        modal.hide();
+        
+        // הצג Toast
+        document.getElementById('toastMessage').textContent = `הכיתה "${className}" נוצרה בהצלחה!`;
+        const toast = new bootstrap.Toast(document.getElementById('successToast'));
+        toast.show();
+        
+        // חזור לעמוד הבית אחרי 3 שניות
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 3000);
+    })
+    .catch(err => {
+        showMessage('error', 'שגיאה בשמירת הכיתה: ' + err);
+    });
+}
+
+function showMessage(type, text) {
+    const messageDiv = document.getElementById('quickRunMessage');
+    const alertClass = type === 'error' ? 'alert-danger' : type === 'success' ? 'alert-success' : 'alert-info';
+    messageDiv.innerHTML = `<div class="alert ${alertClass}" role="alert">${text}</div>`;
+    messageDiv.style.display = 'block';
+}
+
+function hideMessage() {
+    document.getElementById('quickRunMessage').style.display = 'none';
+}
+</script>
 {% endblock %}

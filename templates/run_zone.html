@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>⚙️ Run Zone - עבודה מהירה על כיתות</h2>
+            <p class="text-muted">בחר כיתה, ערוך וראה תוצאות בזמן אמת</p>
+        </div>
+    </div>
+
+    <!-- בחירת כיתה -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-info">
+                <div class="card-body">
+                    <h5 class="card-title">📚 בחר כיתה שמורה</h5>
+                    <p class="card-text small text-muted">פתח כיתה קיימת לעריכה וערוך אותה כאן</p>
+                    
+                    {% if classes %}
+                    <form id="classSelectForm">
+                        <div class="mb-3">
+                            <select class="form-select" id="classSelect" required onchange="loadClass()">
+                                <option value="">-- בחר כיתה --</option>
+                                {% for class_name in class_names %}
+                                <option value="{{ class_name }}">{{ class_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div id="classInfo" class="mb-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong>סטודנטים:</strong> <span id="studentCount">-</span><br>
+                                <strong>יחידות:</strong> <span id="unitCount">-</span>
+                            </div>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        אין כיתות שמורות עדיין. צור כיתה בדף הבית קודם.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- עמוד העריכה (יופיע אחרי בחירת כיתה) -->
+    <div id="editZone" style="display: none;">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h4>✏️ עריכת יחידות</h4>
+                <p class="small text-muted">בחר יחידה כדי לערוך את הדירוגים:</p>
+            </div>
+        </div>
+
+        <div id="unitsEdit" class="row"></div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>🎯 פעולות</h4>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-lg btn-warning" onclick="runOptimized()">
+                        ⚡ הרצה רגילה
+                    </button>
+                    <button class="btn btn-lg btn-danger" onclick="runFullOptimized()">
+                        🚀 אופטימיזציה מלאה
+                    </button>
+                    <button class="btn btn-lg btn-success" onclick="saveAndClose()">
+                        💾 שמור כיתה וסגור
+                    </button>
+                    <button class="btn btn-lg btn-outline-secondary" onclick="closeEditZone()">
+                        ❌ בטל (בלי שמירה)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <a href="/" class="btn btn-outline-secondary">🏠 חזור לעמוד הבית</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadClass() {
+    const className = document.getElementById('classSelect').value;
+    if (!className) {
+        document.getElementById('editZone').style.display = 'none';
+        return;
+    }
+    
+    // שליחה לשרת כדי לקבל את הנתונים
+    fetch(`/get_class_data/${className}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('studentCount').textContent = data.students.length;
+                document.getElementById('unitCount').textContent = Object.keys(data.units).length;
+                document.getElementById('classInfo').style.display = 'block';
+                document.getElementById('editZone').style.display = 'block';
+                renderUnitsEdit(data.units);
+            }
+        });
+}
+
+function renderUnitsEdit(units) {
+    const container = document.getElementById('unitsEdit');
+    container.innerHTML = '';
+    
+    Object.entries(units).forEach(([unitName, unitData]) => {
+        const html = `
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6>${unitName}</h6>
+                        <p class="small text-muted">קיבולת: ${unitData.capacity} | כוח: ${unitData.power.toFixed(2)}</p>
+                        <a href="/rank/${unitName}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            ערוך דירוגים ✏️
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += html;
+    });
+}
+
+function runOptimized() {
+    const className = document.getElementById('classSelect').value;
+    if (!className) {
+        alert('בחר כיתה קודם');
+        return;
+    }
+    window.location.href = `/load_class/${className}`;
+}
+
+function runFullOptimized() {
+    const className = document.getElementById('classSelect').value;
+    if (!className) {
+        alert('בחר כיתה קודם');
+        return;
+    }
+    window.location.href = `/run_class_optimized/${className}`;
+}
+
+function saveAndClose() {
+    alert('אפשרות שמירה הכיתה כבר שמורה, אתה יכול לסגור זאת');
+    window.location.href = '/';
+}
+
+function closeEditZone() {
+    document.getElementById('editZone').style.display = 'none';
+    document.getElementById('classSelect').value = '';
+}
+</script>
+
+{% endblock %}
