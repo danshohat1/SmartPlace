@@ -9,7 +9,7 @@
     <form method="post">
         <div class="card p-4 shadow-sm border-warning mb-4">
             <h5 class="text-warning mb-3">⚡ הגדרת עוצמת יחידה (Power)</h5>
-            <div class="row align-items-center">
+            <div class="row align-items-center mb-3">
                 <div class="col-md-8">
                     <p class="text-muted mb-0">
                         ערך גבוה מ-1.0 נותן ליחידה עדיפות ב"חטיפת" סטודנטים מול יחידות אחרות.<br>
@@ -21,6 +21,21 @@
                         <span class="input-group-text">עוצמה:</span>
                         <input type="number" name="unit_power" step="0.1" min="0.1" 
                                value="{{ current_power }}" class="form-control form-control-lg text-center">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="sticky_power" name="sticky_power" 
+                               {% if current_sticky %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="sticky_power">
+                            🔒 כוח ברזל (Sticky Power) - שמור ערך זה גם בריצה אופטימלית
+                        </label>
+                        <div class="text-muted small mt-1">
+                            אם מסומן, הערך שהזנת ישמר גם כשתריץ "אופטימיזציה מלאה". 
+                            השתמש בזה ליחידות חשובות מאוד שאתה רוצה לשמור על עוצמתן המדויקת.
+                        </div>
                     </div>
                 </div>
             </div>

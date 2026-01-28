@@ -3,9 +3,8 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 import pandas as pd
 import json
 import os
-from SmartPlace.logic import calculate_student_vectors, run_optimized_matching
+from logic import calculate_student_vectors, run_optimized_matching, run_full_optimization
 import io
-from flask import send_file
 
 app = Flask(__name__)
 DB_FILE = 'db.json'
@@ -57,7 +56,9 @@ def upload_files():
         for _, row in df_u.iterrows():
             units_json[row['UnitName']] = {
                 "capacity": int(row['Capacity']),
-                "prefs": []  # יתמלא בהמשך ידנית
+                "prefs": [],  # יתמלא בהמשך ידנית
+                "power": 1.0,  # ברירת מחדל
+                "sticky_power": False  # ברירת מחדל - לא נעול
             }
             
         # שמירה ל-db.json כדי שהמידע יישמר גם אם תסגור את השרת
@@ -78,6 +79,10 @@ def rank_unit(unit_name):
         # --- 1. עדכון כוח היחידה (Power) ---
         new_power = float(request.form.get('unit_power', 1.0))
         data['units'][unit_name]['power'] = new_power
+        
+        # --- 1.5. עדכון Sticky Power (כוח ברזל) ---
+        sticky_power = request.form.get('sticky_power') == 'on'
+        data['units'][unit_name]['sticky_power'] = sticky_power
         
         # --- 2. עיבוד דירוגי הסטודנטים ---
         # אנחנו אוספים את כל הדירוגים מהטופס (רק מה שאינו ריק)
@@ -112,12 +117,14 @@ def rank_unit(unit_name):
             current_ranks_display[n] = i + 1
             
     current_power = data['units'][unit_name].get('power', 1.0)
+    current_sticky = data['units'][unit_name].get('sticky_power', False)
     
     return render_template('unit_ranking.html', 
                            unit=unit_name, 
                            students=all_student_names, 
                            current_ranks=current_ranks_display,
-                           current_power=current_power)
+                           current_power=current_power,
+                           current_sticky=current_sticky)
 
 @app.route('/download_excel')
 def download_excel():
@@ -159,6 +166,7 @@ def download_excel():
 
 @app.route('/run')
 def run_matching():
+    """ריצה רגילה - עם ה-Power הנוכחי, מוצא רק Gamma אופטימלי"""
     data = load_db()
     (matches, reasons), best_gamma = run_optimized_matching(data['students'], data['units'])
     
@@ -184,9 +192,58 @@ def run_matching():
                            matches=matches, 
                            reasons=reasons, 
                            units_data=data['units'],
-                           units_grouped=units_grouped, # העברת המידע המקובץ
+                           units_grouped=units_grouped,
                            unmatched=unmatched,
-                           stats=stats, # העברת מידע לגרפים
-                           message=f"שיבוץ הושלם (Gamma: {best_gamma})")
+                           stats=stats,
+                           message=f"שיבוץ הושלם (Gamma: {best_gamma})",
+                           optimization_type="רגיל")
+
+@app.route('/run_full_optimization')
+def run_full_opt():
+    """
+    ריצה אופטימלית מלאה - מוצא גם Gamma וגם Power אופטימליים.
+    יחידות עם sticky_power=True ישמרו את ה-Power שלהן.
+    """
+    data = load_db()
+    (matches, reasons), best_gamma, best_powers = run_full_optimization(
+        data['students'], 
+        data['units'], 
+        iterations=200
+    )
+    
+    # --- עדכון ה-Power המצוי ב-DB (רק ליחידות שאינן Sticky) ---
+    for unit_name, new_power in best_powers.items():
+        if not data['units'][unit_name].get('sticky_power', False):
+            data['units'][unit_name]['power'] = new_power
+    
+    save_db(data)
+    
+    # --- הכנת נתונים לתצוגה ---
+    units_grouped = {u: [] for u in data['units'].keys()}
+    unmatched = []
+    
+    for student, unit in matches.items():
+        if unit:
+            if unit in units_grouped:
+                units_grouped[unit].append(student)
+        else:
+            unmatched.append(student)
+            
+    stats = {
+        "labels": list(data['units'].keys()),
+        "assigned": [len(units_grouped[u]) for u in data['units']],
+        "capacity": [data['units'][u]['capacity'] for u in data['units']]
+    }
+
+    return render_template('results.html', 
+                           matches=matches, 
+                           reasons=reasons, 
+                           units_data=data['units'],
+                           units_grouped=units_grouped,
+                           unmatched=unmatched,
+                           stats=stats,
+                           message=f"שיבוץ אופטימלי הושלם! (Gamma: {best_gamma})",
+                           optimization_type="מלא")
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

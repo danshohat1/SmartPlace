@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import re
+import random
+import copy
 from dataclasses import dataclass, field
 from typing import List, Union, Dict, Optional, Tuple
 
@@ -177,6 +179,7 @@ def weighted_gale_shapley(students, universities, gamma=1.0):
             reasons[name] = "לא נמצא שיבוץ; היחידות שהציעו לא היו בעלות משקל מספיק מול העדפות הסטודנט."
 
     return final_matches, reasons
+
 # --- 4. אופטימיזציה (כמו ב-CLI) ---
 
 def boost_voice_by_demand(students, universities, alpha=1.0):
@@ -188,7 +191,7 @@ def boost_voice_by_demand(students, universities, alpha=1.0):
         s.voice += alpha * counts[name]
 
 def run_optimized_matching(students_data, units_data):
-    """מריץ אופטימיזציה למציאת Gamma אידיאלי"""
+    """מריץ אופטימיזציה למציאת Gamma אידיאלי - משתמש ב-Power הנוכחי"""
     def reset_data():
         s = {sd['name']: Student(sd['name'], sd['prefs'], sd['voice']) for sd in students_data}
         u = {name: University(name, ud['capacity'], ud['prefs'], ud.get('power', 1.0)) 
@@ -201,7 +204,7 @@ def run_optimized_matching(students_data, units_data):
 
     for g in np.arange(0.5, 3.0, 0.5):
         s, u = reset_data()
-        boost_voice_by_demand(s, u) # כמו ב-CLI
+        boost_voice_by_demand(s, u)
         m, r = weighted_gale_shapley(s, u, gamma=g)
         unmatched = sum(1 for v in m.values() if v is None)
         if unmatched < fewest_unmatched:
@@ -211,40 +214,56 @@ def run_optimized_matching(students_data, units_data):
 
     return final_results, best_gamma
 
-def optimize_run(students_data, units_data, iterations=100):
+def run_full_optimization(students_data, units_data, iterations=200):
+    """
+    אופטימיזציה מלאה - מוצא את Gamma ו-Power האופטימליים.
+    יחידות עם 'sticky_power': True ישמרו את ה-Power המקורי שלהן.
+    """
     best_matches = None
     best_reasons = None
     best_unmatched_count = float('inf')
+    best_gamma = 1.0
     best_powers = {}
+    
+    print(f"🔄 מתחיל אופטימיזציה מלאה עם {iterations} איטרציות...")
 
-    # יצירת אובייקטים בסיסיים
-    for _ in range(iterations):
+    for iteration in range(iterations):
+        # יצירת עותק עמוק של הנתונים
         current_units_data = copy.deepcopy(units_data)
         
-        # אופטימיזציה: שינוי Power ליחידות שאינן Sticky
+        # שינוי Power רק ליחידות שאינן Sticky
         for u_name, u_info in current_units_data.items():
-            if not u_info.get('sticky', False):
-                # הגרלת כוח חדש בטווח הגיוני (למשל 0.5 עד 15.0)
-                u_info['power'] = round(random.uniform(0.5, 15.0), 1)
+            if not u_info.get('sticky_power', False):
+                # הגרלת כוח חדש בטווח 0.5 עד 50.0
+                u_info['power'] = round(random.uniform(0.5, 50.0), 1)
         
-        # הרצת האלגוריתם עם הנתונים החדשים
-        # (כאן קוראים ל-weighted_gale_shapley המוכר)
-        students_obj = {sd['name']: Student(sd['name'], sd['prefs'], sd['voice']) for sd in students_data}
-        units_obj = {name: University(name, ui['capacity'], ui['prefs'], ui['power']) 
-                     for name, ui in current_units_data.items()}
+        # הרצת אופטימיזציית Gamma עם ה-Powers החדשים
+        def reset_data(gamma_val):
+            s = {sd['name']: Student(sd['name'], sd['prefs'], sd['voice']) for sd in students_data}
+            u = {name: University(name, ui['capacity'], ui['prefs'], ui['power']) 
+                 for name, ui in current_units_data.items()}
+            return s, u
         
-        matches, reasons = weighted_gale_shapley(students_obj, units_obj)
-        unmatched_count = sum(1 for m in matches.values() if m is None)
+        # בדיקת מספר ערכי Gamma
+        for g in np.arange(0.5, 5.0, 0.5):
+            s, u = reset_data(g)
+            boost_voice_by_demand(s, u)
+            matches, reasons = weighted_gale_shapley(s, u, gamma=g)
+            unmatched_count = sum(1 for m in matches.values() if m is None)
 
-        # אם מצאנו שיבוץ טוב יותר - שומרים אותו
-        if unmatched_count < best_unmatched_count:
-            best_unmatched_count = unmatched_count
-            best_matches = matches
-            best_reasons = reasons
-            best_powers = {n: u.power for n, u in units_obj.items()}
-            
-        # אם הגענו ל-0 לא משובצים, אפשר לעצור מוקדם
-        if best_unmatched_count == 0:
-            break
+            # אם מצאנו שיבוץ טוב יותר - שומרים אותו
+            if unmatched_count < best_unmatched_count:
+                best_unmatched_count = unmatched_count
+                best_matches = matches
+                best_reasons = reasons
+                best_gamma = g
+                best_powers = {n: u.power for n, u in u.items()}
+                print(f"✅ איטרציה {iteration+1}: נמצא שיפור! Gamma={g:.1f}, לא משובצים={unmatched_count}")
+                
+            # אם הגענו ל-0 לא משובצים, אפשר לעצור מוקדם
+            if best_unmatched_count == 0:
+                print(f"🎉 הושג שיבוץ מושלם! כל הסטודנטים שובצו.")
+                return (best_matches, best_reasons), best_gamma, best_powers
 
-    return (best_matches, best_reasons), best_powers
+    print(f"✨ אופטימיזציה הושלמה. הטוב ביותר: Gamma={best_gamma:.1f}, לא משובצים={best_unmatched_count}")
+    return (best_matches, best_reasons), best_gamma, best_powers

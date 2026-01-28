@@ -389,7 +389,7 @@
                     "Idan Ostryber"
                 ]
             ],
-            "power": 6.0
+            "power": 29.8
         },
         "Lotam": {
             "capacity": 4,
@@ -413,7 +413,7 @@
                     "Ilan Ahmadov"
                 ]
             ],
-            "power": 3.0
+            "power": 22.9
         },
         "LA": {
             "capacity": 2,
@@ -438,7 +438,7 @@
                     "Ronen Bokobza"
                 ]
             ],
-            "power": 6.0
+            "power": 19.8
         },
         "Mazov": {
             "capacity": 2,
@@ -450,7 +450,7 @@
                     "Max Barshy"
                 ]
             ],
-            "power": 6.0
+            "power": 24.4
         },
         "Hatal": {
             "capacity": 5,
@@ -496,7 +496,7 @@
                     "Omer Portuges"
                 ]
             ],
-            "power": 0.75
+            "power": 4.1
         },
         "Rapat": {
             "capacity": 4,
@@ -529,7 +529,7 @@
                     "Yshy Biton"
                 ]
             ],
-            "power": 15.0
+            "power": 40.0
         },
         "1044": {
             "capacity": 1,
@@ -538,7 +538,8 @@
                     "Idan Ostryber"
                 ]
             ],
-            "power": 40.0
+            "power": 40.0,
+            "sticky_power": true
         },
         "1079": {
             "capacity": 2,
@@ -549,7 +550,8 @@
                     "Aviv Cohen"
                 ]
             ],
-            "power": 40.0
+            "power": 40.0,
+            "sticky_power": true
         },
         "1014": {
             "capacity": 2,
@@ -570,7 +572,8 @@
                     "Idan Ostryber"
                 ]
             ],
-            "power": 40.0
+            "power": 40.0,
+            "sticky_power": true
         }
     }
 }

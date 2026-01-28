@@ -48,7 +48,24 @@
             
             {% if units %}
             <hr>
-            <a href="/run" class="btn btn-danger btn-lg w-100 mt-2">🚀 הרץ שיבוץ סופי</a>
+            <h5 class="mb-3 mt-4">🎯 שלב ג': הרצת שיבוץ</h5>
+            
+            <div class="d-grid gap-2">
+                <a href="/run" class="btn btn-warning btn-lg">
+                    ⚡ ריצה רגילה
+                    <br><small class="d-block" style="font-size: 0.75em;">מוצא רק Gamma אופטימלי, משתמש ב-Power שהזנת</small>
+                </a>
+                
+                <a href="/run_full_optimization" class="btn btn-danger btn-lg">
+                    🚀 אופטימיזציה מלאה
+                    <br><small class="d-block" style="font-size: 0.75em;">מוצא גם Gamma וגם Power אופטימליים (שומר יחידות עם כוח ברזל)</small>
+                </a>
+            </div>
+            
+            <div class="alert alert-info mt-3 small">
+                💡 <strong>טיפ:</strong> השתמש ב"אופטימיזציה מלאה" כדי למצוא את הערכים הטובים ביותר שמשבצים את מקסימום הסטודנטים. 
+                יחידות עם "כוח ברזל" ישמרו את הערכים שלהן.
+            </div>
             {% endif %}
         </div>
     </div>
